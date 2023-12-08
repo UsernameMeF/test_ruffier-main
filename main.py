@@ -7,6 +7,7 @@ from kivy.uix.textinput import TextInput
 from kivy.core.window import Window
 from instructions import *
 from timer import Timer
+from ruffier import test
 
 
 #Window.clearcolor = (0, .10, .56, 1)
@@ -75,6 +76,7 @@ class PulseScr(Screen): # клас
         instr = Label(text=txt_test1, color=lbl_color, bold=True, font_size=25) # текст
         
         self.lbl_sec = Timer(15, color=lbl_color, bold=True) # Таймер
+        self.lbl_sec.bind(done=self.end_timer)
 
         lbl_result = Label(text="Введіть результат:", halign="right", color=lbl_color, bold=True, font_size=25) # створюємо лабель
         self.input_result = TextInput(text="1", multiline = False) # робимо строку для тексту (типо кнопка)
@@ -94,6 +96,12 @@ class PulseScr(Screen): # клас
         main_line.add_widget(self.btn)
         
         self.add_widget(main_line) # Добавляємо мейн лінію на екран (self)
+
+    def end_timer(self, *args):
+        self.next_screen = True
+        self.input_result.set_disabled(False)
+        self.btn.text = "Продовжити"
+
 
 
     def next(self): # змінює екран + перевірка
@@ -173,19 +181,37 @@ class PulseScr2(Screen):
 
 
     def next(self): # змінює екран
-        self.manager.current = "fifth"
+        global p2, p3
+        
+        p2 = check_int(self.input_result.text)
+        p3 = check_int(self.input_after_res.text)
+
+        if p2 is False or p2 < 1:
+            p2 = 0
+            self.input_result.text = str(p2)
+
+        elif p3 is False or p3 < 1:
+            p3 = 0
+            self.input_after_res.text = str(p3)
+
+        else:
+            self.manager.current = "fifth"
+
 
 class ResultScr(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.instr = Label(text="Ваш індекс Руф'є: -14.8", color=lbl_color, bold=True, font_size=25) # текст
-        self.index = Label(text="Працездатність серця: Висока", color=lbl_color, bold=True, font_size=25)
         main_line = BoxLayout(orientation="vertical", size_hint=(.5, .1), pos_hint={'center_x': .5, 'center_y': .5})
         main_line.add_widget(self.instr)
-        main_line.add_widget(self.index)
 
 
         self.add_widget(main_line)
+
+        self.on_enter = self.result
+    
+    def result(self):
+        self.instr.text = name + "\n" + test(p1, p2, p3, age)
 
     #def next(self): # змінює екран
         #self.manager.current = "fifth"
